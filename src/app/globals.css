@@ -1,0 +1,133 @@
+@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Baron+Neue&display=swap");
+@import "tailwindcss";
+
+:root {
+  /* SURFACES */
+  --bg: #ffffff; /* page background */
+  --sidebar-bg: #d1d5db; /* sidebar, nav panels */
+  --header-bg: #ffffff; /* top nav / header bar */
+  --card-bg: #ffffff; /* cards and tables */
+  --surface: var(--card-bg); /* forms, search bars, etc. */
+  --surface-hover: #f3f4f6; /* row hover, etc. */
+
+  /* BORDERS */
+  --border: #e5e7eb; /* card & table borders */
+  --divider: #d1d5db; /* lighter dividing lines */
+
+  /* TYPOGRAPHY */
+  --text-primary: #111827; /* headings, body text */
+  --text-secondary: #6b7280; /* subtitles, metadata */
+  --text-muted: #4b5563; /* very faint text */
+
+  /* FORMS */
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-placeholder: #9ca3af;
+
+  /* ACCENTS */
+  --accent: #f97316; /* your “orange” */
+  --accent-hover: #ea580c; /* orange-600 */
+  --success: #10b981;
+  --error: #ef4444;
+  --danger: #e02c2c;
+  --warning: #fbbf24;
+}
+
+html.dark {
+  /* SURFACES */
+  --bg: #131313;
+  --sidebar-bg: #212123;
+  --header-bg: #131313;
+  --card-bg: #131313;
+  --surface: var(--card-bg);
+  --surface-hover: #111827;
+
+  /* BORDERS */
+  --border: #374151;
+  --divider: #4b5563;
+
+  /* TYPOGRAPHY */
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+
+  /* FORMS */
+  --input-bg: #111827;
+  --input-border: #374151;
+  --input-placeholder: #9ca3af;
+
+  /* ACCENTS */
+  --accent: #f97316;
+  --accent-hover: #ea580c;
+  --success: #10b981;
+  --error: #ef4444;
+  --danger: #e02c2c;
+  --warning: #fbbf24;
+}
+
+/* Base page styles */
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+}
+
+/* Links */
+a {
+  color: var(--accent);
+}
+a:hover {
+  color: var(--accent-hover);
+}
+
+/* Icon tinting */
+.icon-theme {
+  filter: invert(1);
+}
+html.dark .icon-theme {
+  filter: invert(0);
+}
+
+@layer base {
+  /* keep Lexend everywhere by default */
+  html {
+    font-family: "Lexend", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* a special class for “brand” text next to your logo */
+  .brand-font {
+    font-family: "Baron Neue", serif;
+  }
+
+  /* invert the white text → black in light mode */
+  .logo-text {
+    filter: invert(1) !important;
+  }
+
+  /* restore to original (white) in dark mode */
+  html.dark .logo-text {
+    filter: invert(0) !important;
+  }
+}
+
+/* Orange scrollbars for all browsers */
+
+/* Chrome, Edge, Safari */
+*::-webkit-scrollbar {
+  width: 12px;
+  background: var(--surface-hover);
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 8px;
+  border: 2px solid var(--surface-hover);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--surface-hover);
+}

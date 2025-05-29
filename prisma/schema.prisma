@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
+}
+
+model Employee {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  employeeId  String   @unique
+  department  String
+  designation String
+  type        String
+  status      String
+  avatar      String?
+  createdAt   DateTime @default(now())
+
+  personalInfo PersonalInfoEmbedded
+  professionalInfo ProfessionalInfoEmbedded
+  documents    DocumentSetEmbedded
+  accountLinks     AccountLinksEmbedded
+
+  // now an opposite relation for Attendance, leaves and projects:
+  attendances Attendance[] @relation("EmployeeAttendances")
+  leaves       Leave[]      @relation("EmployeeLeaves")
+  projects    Project[]    @relation("EmployeeProjects")
+}
+
+model Attendance {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  employee   Employee @relation("EmployeeAttendances", fields: [employeeId], references: [id])
+  employeeId String   @db.ObjectId
+  date       DateTime
+  checkIn    DateTime
+  checkOut   DateTime
+  breakTime  String?
+  workHours  String?
+  status     String
+  createdAt  DateTime @default(now())
+}
+
+model Leave {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  employee   Employee  @relation("EmployeeLeaves", fields: [employeeId], references: [id])
+  employeeId String    @db.ObjectId
+  reason     String
+  startDate  DateTime
+  endDate    DateTime
+  status     String    @default("PENDING")
+  createdAt  DateTime  @default(now())
+}
+
+model Project {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  status      String    @default("IN_PROGRESS")
+
+  assignee    Employee  @relation("EmployeeProjects", fields: [employeeId], references: [id])
+  employeeId  String    @db.ObjectId
+
+  createdAt   DateTime  @default(now())
+}
+
+type PersonalInfoEmbedded {
+  email         String
+  phone         String
+  dob           String
+  maritalStatus String
+  gender        String
+  nationality   String
+  address       String
+  city          String
+  state         String
+  zipCode       String
+}
+
+type ProfessionalInfoEmbedded {
+  username       String
+  joiningDate    String
+  workingDays    String
+  officeLocation String
+}
+
+type DocumentSetEmbedded {
+  appointmentLetter String?
+  salarySlip        String?
+  relievingLetter   String?
+  experienceLetter  String?
+}
+
+type AccountLinksEmbedded {
+  email    String
+  slackId  String
+  skypeId  String
+  githubId String
+}
+
+model User {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name         String?
+  email        String?   @unique
+  password     String?
+  role         String
+  image        String?   // ← store their avatar URL here
+  otp          String?
+  otpExpiresAt DateTime?
+  createdAt    DateTime  @default(now())
+
+  notifications Notification[] @relation("UserNotifications")
+ }
+
+ model Notification {
+
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  // link it to your User
+  user       User     @relation("UserNotifications", fields: [userId], references: [id])
+  userId     String   @db.ObjectId
+
+  type       String   // e.g. "PROJECT_ASSIGNED" | "LEAVE_APPROVED" | …
+  message    String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+ }
