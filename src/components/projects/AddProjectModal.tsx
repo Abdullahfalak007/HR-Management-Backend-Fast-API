@@ -21,7 +21,7 @@ export default function AddProjectModal({ onClose, onSuccess }: Props) {
   const [employeeId, setEmployeeId] = useState("");
 
   useEffect(() => {
-    fetch("/api/employees")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/employees`)
       .then((r) => r.json())
       .then((list: Emp[]) => {
         setEmployees(list.map((e) => ({ id: e.id, name: e.name })));
@@ -30,7 +30,7 @@ export default function AddProjectModal({ onClose, onSuccess }: Props) {
   }, []);
 
   const save = async () => {
-    await fetch("/api/projects", {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

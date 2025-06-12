@@ -1,22 +1,22 @@
 // src/components/layout/UserDropdown.tsx
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
+import { useAuth } from "@/app/AuthProvider";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 
 export default function UserDropdown() {
-  const { data: session } = useSession();
+  const { user, isAuthenticated, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const isAdmin = session?.user?.role === "ADMIN";
+  const isAdmin = user?.role === "ADMIN";
 
   // fetch the current employee ID for non-admins
   const [empId, setEmpId] = useState<string | null>(null);
   useEffect(() => {
-    fetch("/api/employees/me")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/employees/me`)
       .then((r) => r.json())
       .then((data: { id: string | null }) => setEmpId(data.id))
       .catch(console.error);
@@ -33,8 +33,8 @@ export default function UserDropdown() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  if (!session?.user) return null;
-  const { name, image, role } = session.user;
+  if (!user) return null;
+  const { name, image, role } = user;
 
   // build the “Employee Info” link
   let infoHref = "#";
@@ -131,7 +131,10 @@ export default function UserDropdown() {
           <hr className="border-[var(--divider)] my-1" />
 
           <button
-            onClick={() => signOut()}
+            onClick={() => {
+              logout();
+              window.location.href = "/signin";
+            }}
             className="
               w-full text-left px-4 py-2
               !text-[var(--text-primary)]

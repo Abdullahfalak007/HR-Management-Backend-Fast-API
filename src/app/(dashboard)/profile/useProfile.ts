@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/AuthProvider";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { fetchMyProfile, updateMyProfile } from "@/store/slices/userSlice";
 
 export function useProfile() {
-  const { data: session } = useSession();
+  const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const me = useAppSelector((s) => s.users.me);
@@ -17,10 +17,10 @@ export function useProfile() {
 
   // useProfile.ts
   useEffect(() => {
-    if (!me && session?.user) {
+    if (!me && user) {
       dispatch(fetchMyProfile());
     }
-  }, [me, session, dispatch]);
+  }, [me, user, dispatch]);
 
   useEffect(() => {
     if (me) {
@@ -58,12 +58,12 @@ export function useProfile() {
   const handleUpdate = async () => {
     await dispatch(updateMyProfile({ name, email, avatarUrl }));
     // Force session refresh
-    await fetch("/api/auth/session?update");
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/session?update`);
     router.refresh();
   };
 
   return {
-    session,
+    user,
     loading,
     name,
     setName,

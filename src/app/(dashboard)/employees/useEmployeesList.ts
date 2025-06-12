@@ -1,16 +1,15 @@
 import { useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/app/AuthProvider";
 import { useSearchParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { fetchEmployees } from "@/store/slices/employeeSlice";
 
 export function useEmployeesList() {
-  const { data: session, status: authStatus } = useSession();
-  console.log("Session:", session);
+  const { user, isAuthenticated } = useAuth();
   const dispatch = useAppDispatch();
 
   const status = useAppSelector((s) => s.employees.status);
-  const loading = status === "loading" || authStatus === "loading";
+  const loading = status === "loading";
   const employees = useAppSelector((s) => s.employees.employees);
 
   const searchParams = useSearchParams();
@@ -21,7 +20,7 @@ export function useEmployeesList() {
     )
   );
 
-  const isAdmin = session?.user.role === "ADMIN";
+  const isAdmin = user?.role === "ADMIN";
   const refresh = () => dispatch(fetchEmployees());
 
   useEffect(() => {
@@ -30,5 +29,5 @@ export function useEmployeesList() {
     }
   }, [status, dispatch]);
 
-  return { session, loading, filtered, isAdmin, refresh };
+  return { loading, filtered, isAdmin, refresh };
 }

@@ -26,9 +26,12 @@ export default function EmployeeRow({
   };
   const handleDelete = async () => {
     if (!confirm("Delete this employee?")) return;
-    const res = await fetch(`/api/employees/${employee.id}`, {
-      method: "DELETE",
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/employees/${employee.id}`,
+      {
+        method: "DELETE",
+      }
+    );
     if (res.ok) onDeleteSuccess?.();
   };
 

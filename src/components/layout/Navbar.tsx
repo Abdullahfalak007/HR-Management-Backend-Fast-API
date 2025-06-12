@@ -1,7 +1,7 @@
 // src/components/layout/Navbar.tsx
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/app/AuthProvider";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { assets } from "@/constants/assets";
@@ -20,20 +20,20 @@ export default function Navbar({
   subtitle?: string;
   onMenuClick: () => void;
 }) {
-  const { data: session } = useSession();
+  const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
-    if (session?.user) {
-      fetch("/api/notifications")
+    if (user) {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications`)
         .then((r) => r.json())
         .then((data: Notification[]) =>
           setUnread(data.filter((n) => !n.read).length)
         )
         .catch(console.error);
     }
-  }, [session]);
+  }, [user]);
 
   return (
     <header
@@ -105,7 +105,7 @@ export default function Navbar({
           )}
         </button>
 
-        {session?.user && <UserDropdown />}
+        {user && <UserDropdown />}
       </div>
     </header>
   );

@@ -1,9 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Sidebar from "@/components/layout/Sidebar";
 import Navbar from "@/components/layout/Navbar";
 import Loader from "@/components/common/Loader";
-import { useDashboardLayout } from "./useDashboardLayout";
+import { useAuth } from "@/app/AuthProvider";
 import { useRouter } from "next/navigation";
 
 export default function DashboardLayoutInner({
@@ -11,25 +11,23 @@ export default function DashboardLayoutInner({
 }: {
   children: React.ReactNode;
 }) {
-  const { loading, session, title, subtitle } = useDashboardLayout();
+  const { user, isAuthenticated } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    if (!loading && !session) {
-      router.replace("/signin");
-    }
-  }, [loading, session, router]);
-
-  if (!session) return null; // Don't render anything while redirecting
+  // Protect route
+  if (!isAuthenticated) {
+    if (typeof window !== "undefined") router.replace("/signin");
+    return null;
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar
-          title={title}
-          subtitle={subtitle}
+          title={""}
+          subtitle={""}
           onMenuClick={() => setSidebarOpen((o) => !o)}
         />
         <main className="flex-1 p-6 overflow-auto">{children}</main>

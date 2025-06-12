@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { useAuth } from "@/app/AuthProvider";
 
 export function useSignin() {
   const [email, setEmail] = useState("");
@@ -12,23 +12,29 @@ export function useSignin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const { login } = useAuth();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    const res = await signIn("credentials", {
-      redirect: false,
-      email,
-      password,
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signin`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      }
+    );
+    const data = await res.json();
 
-    if (res?.error) {
-      toast.error("Invalid email or password");
-      setError("Invalid email or password");
+    if (!res.ok) {
+      toast.error(data.detail || "Invalid email or password");
+      setError(data.detail || "Invalid email or password");
     } else {
       toast.success("Signed in successfully");
+      login(data.user, data.access_token);
       router.push("/");
     }
     setLoading(false);

@@ -123,7 +123,9 @@ const initialState: UserState = {
 export const fetchMyProfile = createAsyncThunk<User, void>(
   "users/fetchMe",
   async () => {
-    const res = await axios.get<User>("/api/profile");
+    const res = await axios.get<User>(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/profile`
+    );
     return res.data;
   }
 );
@@ -136,7 +138,10 @@ export const updateMyProfile = createAsyncThunk<
     avatarUrl: string;
   }
 >("users/updateMe", async (payload) => {
-  const res = await axios.patch<User>("/api/profile", payload);
+  const res = await axios.patch<User>(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/profile`,
+    payload
+  );
   return res.data;
 });
 

@@ -17,7 +17,9 @@ const initialState: EmployeeState = {
 export const fetchEmployees = createAsyncThunk<Employee[], void>(
   "employees/fetchAll",
   async () => {
-    const res = await axios.get<Employee[]>("/api/employees");
+    const res = await axios.get<Employee[]>(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/employees`
+    );
     return res.data;
   }
 );
@@ -26,7 +28,9 @@ export const fetchEmployees = createAsyncThunk<Employee[], void>(
 export const fetchEmployeeById = createAsyncThunk<Employee, string>(
   "employees/fetchById",
   async (id) => {
-    const res = await axios.get<Employee>(`/api/employees/${id}`);
+    const res = await axios.get<Employee>(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/employees/${id}`
+    );
     return res.data;
   }
 );
@@ -35,7 +39,10 @@ export const fetchEmployeeById = createAsyncThunk<Employee, string>(
 export const createEmployee = createAsyncThunk<Employee, FormState>(
   "employees/create",
   async (data) => {
-    const res = await axios.post<Employee>("/api/employees", data);
+    const res = await axios.post<Employee>(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/employees`,
+      data
+    );
     return res.data;
   }
 );
@@ -45,7 +52,10 @@ export const updateEmployee = createAsyncThunk<
   Employee,
   { id: string; data: any }
 >("employees/update", async ({ id, data }) => {
-  const res = await axios.patch<Employee>(`/api/employees/${id}`, data);
+  const res = await axios.patch<Employee>(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/employees/${id}`,
+    data
+  );
   return res.data;
 });
 
@@ -53,7 +63,9 @@ export const updateEmployee = createAsyncThunk<
 export const deleteEmployee = createAsyncThunk<string, string>(
   "employees/delete",
   async (id) => {
-    await axios.delete(`/api/employees/${id}`);
+    await axios.delete(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/employees/${id}`
+    );
     return id;
   }
 );

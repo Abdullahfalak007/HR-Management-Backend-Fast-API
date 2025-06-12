@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { isSameDay, isThisWeek, subDays } from "date-fns";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
@@ -7,10 +6,11 @@ import { fetchEmployees } from "@/store/slices/employeeSlice";
 import { fetchLeaves } from "@/store/slices/leaveSlice";
 import { fetchProjects } from "@/store/slices/projectSlice";
 import { fetchAttendanceRecords } from "@/store/slices/attendanceSlice";
+import { useAuth } from "@/app/AuthProvider";
 
 export function useDashboard() {
   const router = useRouter();
-  const { data: session, status: authStatus } = useSession();
+  const { user, isAuthenticated } = useAuth();
   const dispatch = useAppDispatch();
 
   const { employees, status: empStatus } = useAppSelector((s) => s.employees);
@@ -26,18 +26,18 @@ export function useDashboard() {
 
   // on‐mount fetch for admins
   useEffect(() => {
-    if (session?.user.role === "ADMIN") {
+    if (user?.role === "ADMIN") {
       dispatch(fetchEmployees());
       dispatch(fetchLeaves());
       dispatch(fetchAttendanceRecords());
       dispatch(fetchProjects());
     }
-  }, [session?.user.role, dispatch]);
+  }, [user?.role, dispatch]);
 
-  const unauthorized = authStatus !== "loading" && !session;
-  const isAdmin = session?.user.role === "ADMIN";
+  const unauthorized = !isAuthenticated;
+  const isAdmin = user?.role === "ADMIN";
   const loading =
-    authStatus === "loading" ||
+    !isAuthenticated ||
     (isAdmin &&
       (empStatus === "loading" ||
         leaveLoading ||
@@ -46,7 +46,14 @@ export function useDashboard() {
 
   // non‐admin: nothing else needed here
   if (unauthorized) {
-    return { router, session, authStatus, unauthorized, loading, isAdmin };
+    return {
+      router,
+      session: { user },
+      authStatus: loading ? "loading" : "authenticated",
+      unauthorized,
+      loading,
+      isAdmin,
+    };
   }
 
   // compute metrics for admin
@@ -108,8 +115,8 @@ export function useDashboard() {
 
   return {
     router,
-    session,
-    authStatus,
+    session: { user }, // for compatibility
+    authStatus: loading ? "loading" : "authenticated",
     unauthorized,
     loading,
     isAdmin,

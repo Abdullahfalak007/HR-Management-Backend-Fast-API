@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "@/app/AuthProvider";
 
 export function useDashboardLayout() {
-  const { data: session, status } = useSession();
+  const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -15,7 +15,7 @@ export function useDashboardLayout() {
     if (match) {
       const id = match[1];
       // Fetch employee data
-      fetch(`/api/employees/${id}`)
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/employees/${id}`)
         .then((res) => res.json())
         .then((data) => {
           if (data?.name) setEmployeeName(data.name);
@@ -47,5 +47,5 @@ export function useDashboardLayout() {
     return { title: human, subtitle: `You are now on the ${human} page.` };
   }, [pathname, employeeName]);
 
-  return { loading: status === "loading", session, title, subtitle };
+  return { loading: status === "loading", session: { user }, title, subtitle };
 }

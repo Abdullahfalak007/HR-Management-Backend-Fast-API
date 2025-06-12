@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/app/AuthProvider";
+
 import { toast } from "react-toastify";
 
 export function useChangePassword() {
-  const { data: session, status } = useSession();
+  const { user, isAuthenticated } = useAuth();
   const router = useRouter();
 
   const [currentPassword, setCurrentPassword] = useState("");
@@ -15,11 +16,10 @@ export function useChangePassword() {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    if (status === "loading") return;
-    if (!session) {
+    if (!isAuthenticated) {
       router.replace("/signin");
     }
-  }, [status, session, router]);
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,11 +32,14 @@ export function useChangePassword() {
       return;
     }
 
-    const res = await fetch("/api/auth/change-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ currentPassword, newPassword }),
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      }
+    );
     const data = await res.json();
 
     if (!res.ok) {
@@ -53,7 +56,6 @@ export function useChangePassword() {
   };
 
   return {
-    status,
     currentPassword,
     setCurrentPassword,
     newPassword,
